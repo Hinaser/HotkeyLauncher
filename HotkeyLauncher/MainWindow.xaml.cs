@@ -162,7 +162,7 @@ public partial class MainWindow : Window
 
     private void AddButton_Click(object sender, RoutedEventArgs e)
     {
-        if (!ValidateInput()) return;
+        if (!ValidateInput(excludeId: null)) return;
 
         var config = new HotkeyConfig
         {
@@ -180,7 +180,7 @@ public partial class MainWindow : Window
 
     private void UpdateButton_Click(object sender, RoutedEventArgs e)
     {
-        if (_selectedConfig == null || !ValidateInput()) return;
+        if (_selectedConfig == null || !ValidateInput(excludeId: _selectedConfig.Id)) return;
 
         _selectedConfig.Name = NameTextBox.Text.Trim();
         _selectedConfig.Modifiers = _currentModifiers;
@@ -221,7 +221,7 @@ public partial class MainWindow : Window
         StartupManager.SetStartup(StartWithWindowsCheckBox.IsChecked == true);
     }
 
-    private bool ValidateInput()
+    private bool ValidateInput(Guid? excludeId)
     {
         if (string.IsNullOrWhiteSpace(NameTextBox.Text))
         {
@@ -238,6 +238,22 @@ public partial class MainWindow : Window
         if (string.IsNullOrWhiteSpace(PathTextBox.Text))
         {
             System.Windows.MessageBox.Show("Please select an application.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+            return false;
+        }
+
+        // Check for duplicate hotkey
+        var duplicate = _hotkeys.FirstOrDefault(h =>
+            h.Modifiers == _currentModifiers &&
+            h.Key == _currentKey &&
+            h.Id != excludeId);
+
+        if (duplicate != null)
+        {
+            System.Windows.MessageBox.Show(
+                $"This hotkey is already assigned to \"{duplicate.Name}\".",
+                "Duplicate Hotkey",
+                MessageBoxButton.OK,
+                MessageBoxImage.Warning);
             return false;
         }
 
