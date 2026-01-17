@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:converters="clr-namespace:HotkeyLauncher.Converters"
         mc:Ignorable="d"
         Title="HotkeyLauncher" Height="600" Width="780"
         MinHeight="600" MinWidth="650"
@@ -11,6 +12,9 @@
         Background="#1e1e1e">
 
     <Window.Resources>
+        <!-- Converters -->
+        <converters:PathToIconConverter x:Key="PathToIconConverter"/>
+
         <!-- Colors -->
         <Color x:Key="PrimaryColor">#0078d4</Color>
         <Color x:Key="PrimaryHoverColor">#1084d8</Color>
@@ -263,17 +267,21 @@
                         <DataTemplate>
                             <Grid>
                                 <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
-                                <StackPanel Grid.Column="0">
+                                <Image Grid.Column="0" Width="24" Height="24" Margin="0,0,10,0"
+                                       Source="{Binding ApplicationPath, Converter={StaticResource PathToIconConverter}}"
+                                       VerticalAlignment="Center"/>
+                                <StackPanel Grid.Column="1">
                                     <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="14"
                                                Foreground="{StaticResource TextBrush}"/>
                                     <TextBlock Text="{Binding ApplicationPath}" FontSize="11"
                                                Foreground="{StaticResource TextSecondaryBrush}"
                                                TextTrimming="CharacterEllipsis" Margin="0,2,0,0"/>
                                 </StackPanel>
-                                <Border Grid.Column="1" Background="#404040" CornerRadius="4"
+                                <Border Grid.Column="2" Background="#404040" CornerRadius="4"
                                         Padding="8,4" VerticalAlignment="Center">
                                     <TextBlock Text="{Binding HotkeyDisplayText}" FontSize="12"
                                                FontFamily="Consolas" Foreground="{StaticResource TextBrush}"/>
