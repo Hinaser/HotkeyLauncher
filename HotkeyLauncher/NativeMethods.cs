@@ -19,6 +19,14 @@ internal static partial class NativeMethods
     public const int VK_F14 = 0x7D;
     public const int VK_F15 = 0x7E;
     public const int VK_F16 = 0x7F;
+    public const int VK_F17 = 0x80;
+    public const int VK_F18 = 0x81;
+    public const int VK_F19 = 0x82;
+    public const int VK_F20 = 0x83;
+    public const int VK_F21 = 0x84;
+    public const int VK_F22 = 0x85;
+    public const int VK_F23 = 0x86;
+    public const int VK_F24 = 0x87;
     public const int VK_0 = 0x30;
     public const int VK_1 = 0x31;
     public const int VK_2 = 0x32;

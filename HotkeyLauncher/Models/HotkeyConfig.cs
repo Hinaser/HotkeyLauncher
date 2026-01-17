@@ -52,11 +52,8 @@ public class HotkeyConfig
         {
             >= NativeMethods.VK_0 and <= NativeMethods.VK_9 => ((char)Key).ToString(),
             >= 0x41 and <= 0x5A => ((char)Key).ToString(),
-            NativeMethods.VK_F13 => "F13",
-            NativeMethods.VK_F14 => "F14",
-            NativeMethods.VK_F15 => "F15",
-            NativeMethods.VK_F16 => "F16",
-            >= 0x70 and <= 0x7B => $"F{Key - 0x70 + 1}",
+            >= 0x70 and <= 0x7B => $"F{Key - 0x70 + 1}",  // F1-F12
+            >= NativeMethods.VK_F13 and <= NativeMethods.VK_F24 => $"F{Key - 0x7C + 13}",  // F13-F24
             _ => $"0x{Key:X2}"
         };
     }

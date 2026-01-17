@@ -14,7 +14,20 @@ public class ProcessLauncher
             return;
         }
 
+        // URLs should always be launched (no existing process check)
+        if (IsUrl(config.ApplicationPath))
+        {
+            LaunchProcess(config);
+            return;
+        }
+
         var exeName = Path.GetFileNameWithoutExtension(config.ApplicationPath);
+        if (string.IsNullOrEmpty(exeName))
+        {
+            LaunchProcess(config);
+            return;
+        }
+
         var existingProcesses = Process.GetProcessesByName(exeName);
 
         if (existingProcesses.Length > 0)
@@ -25,6 +38,12 @@ public class ProcessLauncher
         {
             LaunchProcess(config);
         }
+    }
+
+    private static bool IsUrl(string path)
+    {
+        return path.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
+               path.StartsWith("https://", StringComparison.OrdinalIgnoreCase);
     }
 
     private static void LaunchProcess(HotkeyConfig config)
