@@ -5,8 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:converters="clr-namespace:HotkeyLauncher.Converters"
         mc:Ignorable="d"
-        Title="HotkeyLauncher" Height="628" Width="780"
-        MinHeight="628" MinWidth="650"
+        Title="HotkeyLauncher" Height="640" Width="780"
+        MinHeight="640" MinWidth="650"
         WindowStartupLocation="CenterScreen"
         ResizeMode="CanResizeWithGrip"
         Background="#1e1e1e">
@@ -33,11 +33,14 @@
         <SolidColorBrush x:Key="BorderBrush" Color="{StaticResource BorderColor}"/>
         <SolidColorBrush x:Key="TextBrush" Color="{StaticResource TextColor}"/>
         <SolidColorBrush x:Key="TextSecondaryBrush" Color="{StaticResource TextSecondaryColor}"/>
+        <SolidColorBrush x:Key="InputBackgroundBrush" Color="#252525"/>
+        <SolidColorBrush x:Key="SurfaceHoverBrush" Color="{StaticResource SurfaceHoverColor}"/>
+        <SolidColorBrush x:Key="BadgeBrush" Color="#404040"/>
 
         <!-- TextBox Style -->
         <Style TargetType="TextBox">
-            <Setter Property="Background" Value="#252525"/>
-            <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
+            <Setter Property="Background" Value="{DynamicResource InputBackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
             <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Padding" Value="8,6"/>
@@ -183,8 +186,8 @@
 
         <!-- ListBox Style -->
         <Style TargetType="ListBox">
-            <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
-            <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
+            <Setter Property="Background" Value="{DynamicResource SurfaceBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Padding" Value="4"/>
             <Setter Property="Template">
@@ -205,7 +208,7 @@
 
         <!-- ListBoxItem Style -->
         <Style TargetType="ListBoxItem">
-            <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
             <Setter Property="Padding" Value="12,10"/>
             <Setter Property="Margin" Value="2"/>
             <Setter Property="Template">
@@ -217,10 +220,10 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="#3a3a3a"/>
+                                <Setter TargetName="border" Property="Background" Value="{DynamicResource SurfaceHoverBrush}"/>
                             </Trigger>
                             <Trigger Property="IsSelected" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="#0078d4"/>
+                                <Setter TargetName="border" Property="Background" Value="{DynamicResource PrimaryBrush}"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -228,20 +231,77 @@
             </Setter>
         </Style>
 
+        <!-- ComboBox Toggle Button -->
+        <ControlTemplate x:Key="ComboBoxToggleButton" TargetType="ToggleButton">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="20"/>
+                </Grid.ColumnDefinitions>
+                <Border x:Name="Border" Grid.ColumnSpan="2" CornerRadius="4"
+                        Background="{DynamicResource InputBackgroundBrush}"
+                        BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"/>
+                <Path x:Name="Arrow" Grid.Column="1" Fill="{DynamicResource TextBrush}"
+                      HorizontalAlignment="Center" VerticalAlignment="Center"
+                      Data="M 0 0 L 4 4 L 8 0 Z"/>
+            </Grid>
+        </ControlTemplate>
+
         <!-- ComboBox Style -->
         <Style TargetType="ComboBox">
-            <Setter Property="Background" Value="#252525"/>
-            <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
-            <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Padding" Value="8,6"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
             <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBox">
+                        <Grid>
+                            <ToggleButton Name="ToggleButton" Template="{StaticResource ComboBoxToggleButton}"
+                                          Focusable="false" IsChecked="{Binding Path=IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                          ClickMode="Press"/>
+                            <ContentPresenter Name="ContentSite" IsHitTestVisible="False"
+                                              Content="{TemplateBinding SelectionBoxItem}"
+                                              ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                              ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"
+                                              Margin="8,6,28,6" VerticalAlignment="Center" HorizontalAlignment="Left"/>
+                            <Popup Name="Popup" Placement="Bottom" IsOpen="{TemplateBinding IsDropDownOpen}"
+                                   AllowsTransparency="True" Focusable="False" PopupAnimation="Slide">
+                                <Grid Name="DropDown" SnapsToDevicePixels="True"
+                                      MinWidth="{TemplateBinding ActualWidth}" MaxHeight="{TemplateBinding MaxDropDownHeight}">
+                                    <Border x:Name="DropDownBorder" Background="{DynamicResource InputBackgroundBrush}"
+                                            BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="4"/>
+                                    <ScrollViewer Margin="4" SnapsToDevicePixels="True">
+                                        <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Contained"/>
+                                    </ScrollViewer>
+                                </Grid>
+                            </Popup>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
 
         <Style TargetType="ComboBoxItem">
-            <Setter Property="Background" Value="#252525"/>
-            <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
             <Setter Property="Padding" Value="8,6"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBoxItem">
+                        <Border x:Name="Border" Background="{TemplateBinding Background}"
+                                Padding="{TemplateBinding Padding}" CornerRadius="2">
+                            <ContentPresenter/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Border" Property="Background" Value="{DynamicResource SurfaceBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="Border" Property="Background" Value="{DynamicResource PrimaryBrush}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
     </Window.Resources>
 
@@ -255,9 +315,9 @@
         <!-- Header -->
         <StackPanel Grid.Row="0" Margin="0,0,0,20">
             <TextBlock Text="HotkeyLauncher" FontSize="24" FontWeight="Bold"
-                       Foreground="{StaticResource TextBrush}"/>
+                       Foreground="{DynamicResource TextBrush}"/>
             <TextBlock Text="Configure global hotkeys to launch applications"
-                       FontSize="13" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,0"/>
+                       FontSize="13" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,4,0,0"/>
         </StackPanel>
 
         <!-- Main Content -->
@@ -275,7 +335,7 @@
                 </Grid.RowDefinitions>
 
                 <TextBlock Grid.Row="0" Text="Registered Hotkeys" FontSize="13" FontWeight="SemiBold"
-                           Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,8"/>
+                           Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,8"/>
 
                 <ListBox x:Name="HotkeyListBox" Grid.Row="1"
                          SelectionChanged="HotkeyListBox_SelectionChanged">
@@ -292,15 +352,15 @@
                                        VerticalAlignment="Center"/>
                                 <StackPanel Grid.Column="1">
                                     <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="14"
-                                               Foreground="{StaticResource TextBrush}"/>
+                                               Foreground="{DynamicResource TextBrush}"/>
                                     <TextBlock Text="{Binding ApplicationPath}" FontSize="11"
-                                               Foreground="{StaticResource TextSecondaryBrush}"
+                                               Foreground="{DynamicResource TextSecondaryBrush}"
                                                TextTrimming="CharacterEllipsis" Margin="0,2,0,0"/>
                                 </StackPanel>
-                                <Border Grid.Column="2" Background="#404040" CornerRadius="4"
+                                <Border Grid.Column="2" Background="{DynamicResource BadgeBrush}" CornerRadius="4"
                                         Padding="8,4" VerticalAlignment="Center">
                                     <TextBlock Text="{Binding HotkeyDisplayText}" FontSize="12"
-                                               FontFamily="Consolas" Foreground="{StaticResource TextBrush}"/>
+                                               FontFamily="Consolas" Foreground="{DynamicResource TextBrush}"/>
                                 </Border>
                             </Grid>
                         </DataTemplate>
@@ -309,17 +369,17 @@
             </Grid>
 
             <!-- Edit Panel -->
-            <Border Grid.Column="1" Background="{StaticResource SurfaceBrush}"
-                    CornerRadius="8" Padding="16" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
+            <Border Grid.Column="1" Background="{DynamicResource SurfaceBrush}"
+                    CornerRadius="8" Padding="16" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
                 <StackPanel VerticalAlignment="Top">
                     <TextBlock Text="Hotkey Details" FontSize="14" FontWeight="SemiBold"
-                               Foreground="{StaticResource TextBrush}" Margin="0,0,0,16"/>
+                               Foreground="{DynamicResource TextBrush}" Margin="0,0,0,16"/>
 
                     <StackPanel>
-                        <TextBlock Text="Name" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                        <TextBlock Text="Name" FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
                         <TextBox x:Name="NameTextBox" Margin="0,0,0,8"/>
 
-                        <TextBlock Text="Hotkey" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                        <TextBlock Text="Hotkey" FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
                         <Grid Margin="0,0,0,8">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
@@ -334,7 +394,7 @@
                                     Click="ClearHotkeyButton_Click"/>
                         </Grid>
 
-                        <TextBlock Text="Application Path" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                        <TextBlock Text="Application Path" FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
                         <Grid Margin="0,0,0,8">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
@@ -346,10 +406,10 @@
                                     Click="BrowseButton_Click"/>
                         </Grid>
 
-                        <TextBlock Text="Arguments" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                        <TextBlock Text="Arguments" FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
                         <TextBox x:Name="ArgumentsTextBox" Margin="0,0,0,8"/>
 
-                        <TextBlock Text="Working Directory" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                        <TextBlock Text="Working Directory" FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
                         <Grid Margin="0,0,0,8">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
@@ -362,7 +422,7 @@
                         </Grid>
 
                         <CheckBox x:Name="RunAsAdminCheckBox" Content="Run as administrator"
-                                  Foreground="{StaticResource TextBrush}" FontSize="12"/>
+                                  Foreground="{DynamicResource TextBrush}" FontSize="12"/>
                     </StackPanel>
 
                     <StackPanel Margin="0,12,0,0">
@@ -398,10 +458,10 @@
             <StackPanel Grid.Column="0" Orientation="Vertical">
                 <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
                     <CheckBox x:Name="StartWithWindowsCheckBox" Content="Start with Windows"
-                              Foreground="{StaticResource TextBrush}" VerticalAlignment="Center"
+                              Foreground="{DynamicResource TextBrush}" VerticalAlignment="Center"
                               Checked="StartWithWindowsCheckBox_Changed"
                               Unchecked="StartWithWindowsCheckBox_Changed"/>
-                    <TextBlock Text="Theme:" Foreground="{StaticResource TextBrush}"
+                    <TextBlock Text="Theme:" Foreground="{DynamicResource TextBrush}"
                                VerticalAlignment="Center" Margin="24,0,8,0"/>
                     <ComboBox x:Name="ThemeComboBox" Width="100"
                               SelectionChanged="ThemeComboBox_SelectionChanged">
@@ -409,7 +469,7 @@
                         <ComboBoxItem Content="Light" Tag="Light"/>
                     </ComboBox>
                 </StackPanel>
-                <TextBlock Foreground="{StaticResource TextSecondaryBrush}" FontSize="11">
+                <TextBlock Foreground="{DynamicResource TextSecondaryBrush}" FontSize="11">
                     <Run Text="Settings:"/>
                     <Run x:Name="SettingsPathText" Text=""/>
                 </TextBlock>

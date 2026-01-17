@@ -54,6 +54,9 @@ public static class ThemeManager
             resources["BorderBrush"] = new SolidColorBrush(Color.FromRgb(64, 64, 64));
             resources["TextBrush"] = new SolidColorBrush(Color.FromRgb(255, 255, 255));
             resources["TextSecondaryBrush"] = new SolidColorBrush(Color.FromRgb(160, 160, 160));
+            resources["InputBackgroundBrush"] = new SolidColorBrush(Color.FromRgb(37, 37, 37));
+            resources["SurfaceHoverBrush"] = new SolidColorBrush(Color.FromRgb(58, 58, 58));
+            resources["BadgeBrush"] = new SolidColorBrush(Color.FromRgb(64, 64, 64));
 
             window.Background = new SolidColorBrush(Color.FromRgb(30, 30, 30));
         }
@@ -76,6 +79,9 @@ public static class ThemeManager
             resources["BorderBrush"] = new SolidColorBrush(Color.FromRgb(200, 200, 200));
             resources["TextBrush"] = new SolidColorBrush(Color.FromRgb(32, 32, 32));
             resources["TextSecondaryBrush"] = new SolidColorBrush(Color.FromRgb(96, 96, 96));
+            resources["InputBackgroundBrush"] = new SolidColorBrush(Color.FromRgb(255, 255, 255));
+            resources["SurfaceHoverBrush"] = new SolidColorBrush(Color.FromRgb(230, 230, 230));
+            resources["BadgeBrush"] = new SolidColorBrush(Color.FromRgb(220, 220, 220));
 
             window.Background = new SolidColorBrush(Color.FromRgb(249, 249, 249));
         }
