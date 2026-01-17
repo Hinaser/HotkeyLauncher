@@ -80,4 +80,10 @@ internal static partial class NativeMethods
     public static partial bool IsWindowVisible(IntPtr hWnd);
 
     public delegate bool EnumWindowsProc(IntPtr hWnd, IntPtr lParam);
+
+    // DWM APIs for window theming
+    public const int DWMWA_USE_IMMERSIVE_DARK_MODE = 20;
+
+    [LibraryImport("dwmapi.dll")]
+    public static partial int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
 }

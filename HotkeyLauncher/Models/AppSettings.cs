@@ -1,3 +1,5 @@
+using HotkeyLauncher.Services;
+
 namespace HotkeyLauncher.Models;
 
 public class AppSettings
@@ -8,13 +10,16 @@ public class AppSettings
 
     public bool StartWithWindows { get; set; } = false;
 
+    public AppTheme Theme { get; set; } = AppTheme.Dark;
+
     public static AppSettings CreateDefault()
     {
         return new AppSettings
         {
             Hotkeys = [],
             StartMinimized = true,
-            StartWithWindows = false
+            StartWithWindows = false,
+            Theme = AppTheme.Dark
         };
     }
 }

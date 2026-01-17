@@ -15,6 +15,8 @@ public partial class MainWindow : Window
     private uint _currentModifiers;
     private uint _currentKey;
     private bool _isCapturing;
+    private AppTheme _currentTheme = AppTheme.Dark;
+    private bool _isInitializing = true;
 
     public event EventHandler<AppSettings>? SettingsSaved;
 
@@ -23,6 +25,12 @@ public partial class MainWindow : Window
         InitializeComponent();
         HotkeyListBox.ItemsSource = _hotkeys;
         UpdateButtonStates();
+        SourceInitialized += OnSourceInitialized;
+    }
+
+    private void OnSourceInitialized(object? sender, EventArgs e)
+    {
+        ThemeManager.ApplyTheme(this, _currentTheme);
     }
 
     public void LoadSettings(AppSettings settings, string? settingsPath = null)
@@ -50,6 +58,16 @@ public partial class MainWindow : Window
         }
 
         StartWithWindowsCheckBox.IsChecked = StartupManager.IsRegistered;
+
+        _currentTheme = settings.Theme;
+        ThemeComboBox.SelectedIndex = _currentTheme == AppTheme.Dark ? 0 : 1;
+
+        if (IsLoaded)
+        {
+            ThemeManager.ApplyTheme(this, _currentTheme);
+        }
+
+        _isInitializing = false;
     }
 
     private void HotkeyListBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
@@ -208,7 +226,8 @@ public partial class MainWindow : Window
     {
         var settings = new AppSettings
         {
-            Hotkeys = [.. _hotkeys]
+            Hotkeys = [.. _hotkeys],
+            Theme = _currentTheme
         };
 
         SettingsSaved?.Invoke(this, settings);
@@ -223,6 +242,14 @@ public partial class MainWindow : Window
     private void StartWithWindowsCheckBox_Changed(object sender, RoutedEventArgs e)
     {
         StartupManager.SetStartup(StartWithWindowsCheckBox.IsChecked == true);
+    }
+
+    private void ThemeComboBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+    {
+        if (_isInitializing) return;
+
+        _currentTheme = ThemeComboBox.SelectedIndex == 0 ? AppTheme.Dark : AppTheme.Light;
+        ThemeManager.ApplyTheme(this, _currentTheme);
     }
 
     private bool ValidateInput(Guid? excludeId)

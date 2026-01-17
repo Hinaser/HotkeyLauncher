@@ -5,8 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:converters="clr-namespace:HotkeyLauncher.Converters"
         mc:Ignorable="d"
-        Title="HotkeyLauncher" Height="600" Width="780"
-        MinHeight="600" MinWidth="650"
+        Title="HotkeyLauncher" Height="628" Width="780"
+        MinHeight="628" MinWidth="650"
         WindowStartupLocation="CenterScreen"
         ResizeMode="CanResizeWithGrip"
         Background="#1e1e1e">
@@ -227,6 +227,22 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <!-- ComboBox Style -->
+        <Style TargetType="ComboBox">
+            <Setter Property="Background" Value="#252525"/>
+            <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="8,6"/>
+            <Setter Property="FontSize" Value="13"/>
+        </Style>
+
+        <Style TargetType="ComboBoxItem">
+            <Setter Property="Background" Value="#252525"/>
+            <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
+            <Setter Property="Padding" Value="8,6"/>
+        </Style>
     </Window.Resources>
 
     <Grid Margin="20">
@@ -380,10 +396,19 @@
             </Grid.ColumnDefinitions>
 
             <StackPanel Grid.Column="0" Orientation="Vertical">
-                <CheckBox x:Name="StartWithWindowsCheckBox" Content="Start with Windows"
-                          Foreground="{StaticResource TextBrush}" Margin="0,0,0,8"
-                          Checked="StartWithWindowsCheckBox_Changed"
-                          Unchecked="StartWithWindowsCheckBox_Changed"/>
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                    <CheckBox x:Name="StartWithWindowsCheckBox" Content="Start with Windows"
+                              Foreground="{StaticResource TextBrush}" VerticalAlignment="Center"
+                              Checked="StartWithWindowsCheckBox_Changed"
+                              Unchecked="StartWithWindowsCheckBox_Changed"/>
+                    <TextBlock Text="Theme:" Foreground="{StaticResource TextBrush}"
+                               VerticalAlignment="Center" Margin="24,0,8,0"/>
+                    <ComboBox x:Name="ThemeComboBox" Width="100"
+                              SelectionChanged="ThemeComboBox_SelectionChanged">
+                        <ComboBoxItem Content="Dark" Tag="Dark"/>
+                        <ComboBoxItem Content="Light" Tag="Light"/>
+                    </ComboBox>
+                </StackPanel>
                 <TextBlock Foreground="{StaticResource TextSecondaryBrush}" FontSize="11">
                     <Run Text="Settings:"/>
                     <Run x:Name="SettingsPathText" Text=""/>
