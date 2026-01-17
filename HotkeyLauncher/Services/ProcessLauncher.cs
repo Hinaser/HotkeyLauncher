@@ -43,6 +43,11 @@ public class ProcessLauncher
                 startInfo.WorkingDirectory = config.WorkingDirectory;
             }
 
+            if (config.RunAsAdmin)
+            {
+                startInfo.Verb = "runas";
+            }
+
             Process.Start(startInfo);
         }
         catch (Exception ex)

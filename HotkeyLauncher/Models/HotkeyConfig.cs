@@ -18,6 +18,8 @@ public class HotkeyConfig
 
     public string WorkingDirectory { get; set; } = string.Empty;
 
+    public bool RunAsAdmin { get; set; }
+
     [JsonIgnore]
     public int RegisteredId { get; set; }
 

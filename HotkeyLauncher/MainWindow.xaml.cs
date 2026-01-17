@@ -38,7 +38,8 @@ public partial class MainWindow : Window
                 Key = hotkey.Key,
                 ApplicationPath = hotkey.ApplicationPath,
                 Arguments = hotkey.Arguments,
-                WorkingDirectory = hotkey.WorkingDirectory
+                WorkingDirectory = hotkey.WorkingDirectory,
+                RunAsAdmin = hotkey.RunAsAdmin
             });
         }
         ClearInputFields();
@@ -64,6 +65,7 @@ public partial class MainWindow : Window
             PathTextBox.Text = _selectedConfig.ApplicationPath;
             ArgumentsTextBox.Text = _selectedConfig.Arguments;
             WorkingDirTextBox.Text = _selectedConfig.WorkingDirectory;
+            RunAsAdminCheckBox.IsChecked = _selectedConfig.RunAsAdmin;
         }
 
         UpdateButtonStates();
@@ -171,7 +173,8 @@ public partial class MainWindow : Window
             Key = _currentKey,
             ApplicationPath = PathTextBox.Text.Trim(),
             Arguments = ArgumentsTextBox.Text.Trim(),
-            WorkingDirectory = WorkingDirTextBox.Text.Trim()
+            WorkingDirectory = WorkingDirTextBox.Text.Trim(),
+            RunAsAdmin = RunAsAdminCheckBox.IsChecked == true
         };
 
         _hotkeys.Add(config);
@@ -188,6 +191,7 @@ public partial class MainWindow : Window
         _selectedConfig.ApplicationPath = PathTextBox.Text.Trim();
         _selectedConfig.Arguments = ArgumentsTextBox.Text.Trim();
         _selectedConfig.WorkingDirectory = WorkingDirTextBox.Text.Trim();
+        _selectedConfig.RunAsAdmin = RunAsAdminCheckBox.IsChecked == true;
 
         HotkeyListBox.Items.Refresh();
     }
@@ -269,6 +273,7 @@ public partial class MainWindow : Window
         PathTextBox.Text = string.Empty;
         ArgumentsTextBox.Text = string.Empty;
         WorkingDirTextBox.Text = string.Empty;
+        RunAsAdminCheckBox.IsChecked = false;
         _selectedConfig = null;
         HotkeyListBox.SelectedItem = null;
         UpdateButtonStates();
