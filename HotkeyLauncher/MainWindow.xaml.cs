@@ -1,0 +1,270 @@
+using System.Collections.ObjectModel;
+using System.Windows;
+using System.Windows.Input;
+using HotkeyLauncher.Models;
+using Microsoft.Win32;
+using Forms = System.Windows.Forms;
+
+namespace HotkeyLauncher;
+
+public partial class MainWindow : Window
+{
+    private ObservableCollection<HotkeyConfig> _hotkeys = [];
+    private HotkeyConfig? _selectedConfig;
+    private uint _currentModifiers;
+    private uint _currentKey;
+    private bool _isCapturing;
+
+    public event EventHandler<AppSettings>? SettingsSaved;
+
+    public MainWindow()
+    {
+        InitializeComponent();
+        HotkeyListBox.ItemsSource = _hotkeys;
+        UpdateButtonStates();
+    }
+
+    public void LoadSettings(AppSettings settings, string? settingsPath = null)
+    {
+        _hotkeys.Clear();
+        foreach (var hotkey in settings.Hotkeys)
+        {
+            _hotkeys.Add(new HotkeyConfig
+            {
+                Id = hotkey.Id,
+                Name = hotkey.Name,
+                Modifiers = hotkey.Modifiers,
+                Key = hotkey.Key,
+                ApplicationPath = hotkey.ApplicationPath,
+                Arguments = hotkey.Arguments,
+                WorkingDirectory = hotkey.WorkingDirectory
+            });
+        }
+        ClearInputFields();
+
+        if (!string.IsNullOrEmpty(settingsPath))
+        {
+            SettingsPathText.Text = settingsPath;
+        }
+    }
+
+    private void HotkeyListBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+    {
+        _selectedConfig = HotkeyListBox.SelectedItem as HotkeyConfig;
+
+        if (_selectedConfig != null)
+        {
+            NameTextBox.Text = _selectedConfig.Name;
+            _currentModifiers = _selectedConfig.Modifiers;
+            _currentKey = _selectedConfig.Key;
+            UpdateHotkeyDisplay();
+            PathTextBox.Text = _selectedConfig.ApplicationPath;
+            ArgumentsTextBox.Text = _selectedConfig.Arguments;
+            WorkingDirTextBox.Text = _selectedConfig.WorkingDirectory;
+        }
+
+        UpdateButtonStates();
+    }
+
+    private void HotkeyTextBox_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+    {
+        e.Handled = true;
+
+        if (!_isCapturing) return;
+
+        var key = e.Key == Key.System ? e.SystemKey : e.Key;
+
+        // Ignore modifier keys alone
+        if (key == Key.LeftCtrl || key == Key.RightCtrl ||
+            key == Key.LeftAlt || key == Key.RightAlt ||
+            key == Key.LeftShift || key == Key.RightShift ||
+            key == Key.LWin || key == Key.RWin)
+        {
+            return;
+        }
+
+        _currentModifiers = 0;
+        if (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl))
+            _currentModifiers |= NativeMethods.MOD_CONTROL;
+        if (Keyboard.IsKeyDown(Key.LeftAlt) || Keyboard.IsKeyDown(Key.RightAlt))
+            _currentModifiers |= NativeMethods.MOD_ALT;
+        if (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift))
+            _currentModifiers |= NativeMethods.MOD_SHIFT;
+        if (Keyboard.IsKeyDown(Key.LWin) || Keyboard.IsKeyDown(Key.RWin))
+            _currentModifiers |= NativeMethods.MOD_WIN;
+
+        _currentKey = (uint)KeyInterop.VirtualKeyFromKey(key);
+
+        UpdateHotkeyDisplay();
+    }
+
+    private void HotkeyTextBox_GotFocus(object sender, RoutedEventArgs e)
+    {
+        _isCapturing = true;
+        HotkeyTextBox.Text = "Press a key combination...";
+    }
+
+    private void HotkeyTextBox_LostFocus(object sender, RoutedEventArgs e)
+    {
+        _isCapturing = false;
+        UpdateHotkeyDisplay();
+    }
+
+    private void ClearHotkeyButton_Click(object sender, RoutedEventArgs e)
+    {
+        _currentModifiers = 0;
+        _currentKey = 0;
+        UpdateHotkeyDisplay();
+    }
+
+    private void UpdateHotkeyDisplay()
+    {
+        if (_currentKey == 0)
+        {
+            HotkeyTextBox.Text = string.Empty;
+            return;
+        }
+
+        var tempConfig = new HotkeyConfig { Modifiers = _currentModifiers, Key = _currentKey };
+        HotkeyTextBox.Text = tempConfig.HotkeyDisplayText;
+    }
+
+    private void BrowseButton_Click(object sender, RoutedEventArgs e)
+    {
+        var dialog = new Microsoft.Win32.OpenFileDialog
+        {
+            Filter = "Executable files (*.exe)|*.exe|All files (*.*)|*.*",
+            Title = "Select Application"
+        };
+
+        if (dialog.ShowDialog() == true)
+        {
+            PathTextBox.Text = dialog.FileName;
+        }
+    }
+
+    private void BrowseDirButton_Click(object sender, RoutedEventArgs e)
+    {
+        using var dialog = new Forms.FolderBrowserDialog
+        {
+            Description = "Select Working Directory",
+            UseDescriptionForTitle = true
+        };
+
+        if (dialog.ShowDialog() == Forms.DialogResult.OK)
+        {
+            WorkingDirTextBox.Text = dialog.SelectedPath;
+        }
+    }
+
+    private void AddButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (!ValidateInput()) return;
+
+        var config = new HotkeyConfig
+        {
+            Name = NameTextBox.Text.Trim(),
+            Modifiers = _currentModifiers,
+            Key = _currentKey,
+            ApplicationPath = PathTextBox.Text.Trim(),
+            Arguments = ArgumentsTextBox.Text.Trim(),
+            WorkingDirectory = WorkingDirTextBox.Text.Trim()
+        };
+
+        _hotkeys.Add(config);
+        ClearInputFields();
+    }
+
+    private void UpdateButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (_selectedConfig == null || !ValidateInput()) return;
+
+        _selectedConfig.Name = NameTextBox.Text.Trim();
+        _selectedConfig.Modifiers = _currentModifiers;
+        _selectedConfig.Key = _currentKey;
+        _selectedConfig.ApplicationPath = PathTextBox.Text.Trim();
+        _selectedConfig.Arguments = ArgumentsTextBox.Text.Trim();
+        _selectedConfig.WorkingDirectory = WorkingDirTextBox.Text.Trim();
+
+        HotkeyListBox.Items.Refresh();
+    }
+
+    private void DeleteButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (_selectedConfig == null) return;
+
+        _hotkeys.Remove(_selectedConfig);
+        ClearInputFields();
+    }
+
+    private void SaveButton_Click(object sender, RoutedEventArgs e)
+    {
+        var settings = new AppSettings
+        {
+            Hotkeys = [.. _hotkeys]
+        };
+
+        SettingsSaved?.Invoke(this, settings);
+        System.Windows.MessageBox.Show("Settings saved successfully.", "HotkeyLauncher", MessageBoxButton.OK, MessageBoxImage.Information);
+    }
+
+    private void CloseButton_Click(object sender, RoutedEventArgs e)
+    {
+        Hide();
+    }
+
+    private bool ValidateInput()
+    {
+        if (string.IsNullOrWhiteSpace(NameTextBox.Text))
+        {
+            System.Windows.MessageBox.Show("Please enter a name.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+            return false;
+        }
+
+        if (_currentKey == 0)
+        {
+            System.Windows.MessageBox.Show("Please set a hotkey.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+            return false;
+        }
+
+        if (string.IsNullOrWhiteSpace(PathTextBox.Text))
+        {
+            System.Windows.MessageBox.Show("Please select an application.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+            return false;
+        }
+
+        return true;
+    }
+
+    private void ClearInputFields()
+    {
+        NameTextBox.Text = string.Empty;
+        _currentModifiers = 0;
+        _currentKey = 0;
+        HotkeyTextBox.Text = string.Empty;
+        PathTextBox.Text = string.Empty;
+        ArgumentsTextBox.Text = string.Empty;
+        WorkingDirTextBox.Text = string.Empty;
+        _selectedConfig = null;
+        HotkeyListBox.SelectedItem = null;
+        UpdateButtonStates();
+    }
+
+    private void CancelButton_Click(object sender, RoutedEventArgs e)
+    {
+        ClearInputFields();
+    }
+
+    private void UpdateButtonStates()
+    {
+        var hasSelection = _selectedConfig != null;
+        AddButton.Visibility = hasSelection ? Visibility.Collapsed : Visibility.Visible;
+        EditButtonsPanel.Visibility = hasSelection ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
+    {
+        e.Cancel = true;
+        Hide();
+    }
+}
