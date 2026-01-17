@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Input;
 using HotkeyLauncher.Models;
+using HotkeyLauncher.Services;
 using Microsoft.Win32;
 using Forms = System.Windows.Forms;
 
@@ -46,6 +47,8 @@ public partial class MainWindow : Window
         {
             SettingsPathText.Text = settingsPath;
         }
+
+        StartWithWindowsCheckBox.IsChecked = StartupManager.IsRegistered;
     }
 
     private void HotkeyListBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
@@ -211,6 +214,11 @@ public partial class MainWindow : Window
     private void CloseButton_Click(object sender, RoutedEventArgs e)
     {
         Hide();
+    }
+
+    private void StartWithWindowsCheckBox_Changed(object sender, RoutedEventArgs e)
+    {
+        StartupManager.SetStartup(StartWithWindowsCheckBox.IsChecked == true);
     }
 
     private bool ValidateInput()
