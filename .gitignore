@@ -364,3 +364,5 @@ FodyWeavers.xsd
 
 # Claude Code memo
 CLAUDE.md
+# Installer output
+dist/

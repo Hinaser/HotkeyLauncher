@@ -22,14 +22,15 @@ A lightweight Windows application for launching apps, opening URLs, and folders 
 
 ## Requirements
 
-- Windows 10/11
-- [.NET 10.0 Runtime](https://dotnet.microsoft.com/download/dotnet/10.0) (or newer)
+- Windows 10/11 (x64)
 
 ## Installation
 
-### Option 1: Download Release
+### Option 1: Download Installer (Recommended)
 
-Download the latest release from the [Releases](https://github.com/Hinaser/HotkeyLauncher/releases) page.
+Download the latest installer from the [Releases](https://github.com/Hinaser/HotkeyLauncher/releases) page.
+
+> **Note**: Windows SmartScreen may show a warning for unsigned installers. Click "More info" → "Run anyway" to proceed.
 
 ### Option 2: Build from Source
 
@@ -41,11 +42,25 @@ cd HotkeyLauncher
 # Build
 dotnet build
 
-# Or publish as single file
+# Publish self-contained executable
 dotnet publish -c Release
 ```
 
 The published executable will be in `HotkeyLauncher/bin/Release/net10.0-windows/win-x64/publish/`.
+
+### Building the Installer
+
+To create the installer, you need [Inno Setup](https://jrsoftware.org/isinfo.php) installed.
+
+```bash
+# First, publish the application
+dotnet publish -c Release
+
+# Then compile the installer (using Inno Setup CLI)
+iscc installer/HotkeyLauncher.iss
+```
+
+The installer will be created in the `dist/` folder.
 
 ## Usage
 
