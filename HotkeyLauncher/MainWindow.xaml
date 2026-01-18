@@ -5,8 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:converters="clr-namespace:HotkeyLauncher.Converters"
         mc:Ignorable="d"
-        Title="HotkeyLauncher" Height="640" Width="780"
-        MinHeight="640" MinWidth="650"
+        Title="HotkeyLauncher" Height="648" Width="780"
+        MinHeight="648" MinWidth="650"
         WindowStartupLocation="CenterScreen"
         ResizeMode="CanResizeWithGrip"
         Background="#1e1e1e">
@@ -334,38 +334,68 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
 
-                <TextBlock Grid.Row="0" Text="Registered Hotkeys" FontSize="13" FontWeight="SemiBold"
-                           Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,8"/>
+                <Grid Grid.Row="0" Margin="0,0,0,8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" Text="Registered Hotkeys" FontSize="13" FontWeight="SemiBold"
+                               Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center"/>
+                    <Button x:Name="NewButton" Grid.Column="1" Content="+ New"
+                            Style="{StaticResource SmallButton}"
+                            Click="NewButton_Click"/>
+                </Grid>
 
-                <ListBox x:Name="HotkeyListBox" Grid.Row="1"
-                         SelectionChanged="HotkeyListBox_SelectionChanged">
+                <Grid Grid.Row="1">
+                    <ListBox x:Name="HotkeyListBox"
+                             SelectionChanged="HotkeyListBox_SelectionChanged"
+                             AllowDrop="True"
+                             PreviewMouseLeftButtonDown="HotkeyListBox_PreviewMouseLeftButtonDown"
+                             PreviewMouseMove="HotkeyListBox_PreviewMouseMove"
+                             Drop="HotkeyListBox_Drop">
                     <ListBox.ItemTemplate>
                         <DataTemplate>
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
                                 <Image Grid.Column="0" Width="24" Height="24" Margin="0,0,10,0"
                                        Source="{Binding ApplicationPath, Converter={StaticResource PathToIconConverter}}"
                                        VerticalAlignment="Center"/>
                                 <StackPanel Grid.Column="1">
-                                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="14"
-                                               Foreground="{DynamicResource TextBrush}"/>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="14"
+                                                   Foreground="{DynamicResource TextBrush}" VerticalAlignment="Center"/>
+                                        <Border Background="{DynamicResource BadgeBrush}" CornerRadius="4"
+                                                Padding="6,2" Margin="8,0,0,0" VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding HotkeyDisplayText}" FontSize="11"
+                                                       FontFamily="Consolas" Foreground="{DynamicResource TextBrush}"/>
+                                        </Border>
+                                    </StackPanel>
                                     <TextBlock Text="{Binding ApplicationPath}" FontSize="11"
                                                Foreground="{DynamicResource TextSecondaryBrush}"
                                                TextTrimming="CharacterEllipsis" Margin="0,2,0,0"/>
                                 </StackPanel>
-                                <Border Grid.Column="2" Background="{DynamicResource BadgeBrush}" CornerRadius="4"
-                                        Padding="8,4" VerticalAlignment="Center">
-                                    <TextBlock Text="{Binding HotkeyDisplayText}" FontSize="12"
-                                               FontFamily="Consolas" Foreground="{DynamicResource TextBrush}"/>
-                                </Border>
                             </Grid>
                         </DataTemplate>
                     </ListBox.ItemTemplate>
                 </ListBox>
+
+                    <!-- Empty state message -->
+                    <Border x:Name="EmptyStatePanel" Background="{DynamicResource SurfaceBrush}"
+                            BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
+                            CornerRadius="6" Visibility="Collapsed">
+                        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                            <TextBlock Text="No hotkeys registered" FontSize="14"
+                                       Foreground="{DynamicResource TextSecondaryBrush}"
+                                       HorizontalAlignment="Center"/>
+                            <TextBlock Text="Add your first hotkey using the panel on the right"
+                                       FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}"
+                                       HorizontalAlignment="Center" Margin="0,4,0,0" Opacity="0.7"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
             </Grid>
 
             <!-- Edit Panel -->
@@ -394,16 +424,28 @@
                                     Click="ClearHotkeyButton_Click"/>
                         </Grid>
 
-                        <TextBlock Text="Application Path" FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                        <TextBlock Text="Target (App / URL / Folder)" FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
                         <Grid Margin="0,0,0,8">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
-                            <TextBox x:Name="PathTextBox" Grid.Column="0"/>
+                            <Grid Grid.Column="0">
+                                <TextBox x:Name="PathTextBox" TextChanged="PathTextBox_TextChanged"/>
+                                <TextBlock x:Name="PathPlaceholder" Text="C:\...\app.exe, https://..., or folder path"
+                                           Foreground="{DynamicResource TextSecondaryBrush}" FontSize="13"
+                                           IsHitTestVisible="False" Margin="9,7,0,0"/>
+                            </Grid>
                             <Button x:Name="BrowseButton" Grid.Column="1" Content="..."
                                     Style="{StaticResource SmallButton}" Margin="6,0,0,0"
-                                    Click="BrowseButton_Click"/>
+                                    Click="BrowseButton_Click">
+                                <Button.ContextMenu>
+                                    <ContextMenu x:Name="BrowseContextMenu">
+                                        <MenuItem Header="Browse Application (.exe)" Click="BrowseApp_Click"/>
+                                        <MenuItem Header="Browse Folder" Click="BrowseFolder_Click"/>
+                                    </ContextMenu>
+                                </Button.ContextMenu>
+                            </Button>
                         </Grid>
 
                         <TextBlock Text="Arguments" FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
@@ -432,17 +474,18 @@
                                 Click="AddButton_Click"/>
 
                         <!-- Edit mode buttons -->
-                        <StackPanel x:Name="EditButtonsPanel" Visibility="Collapsed">
-                            <Button x:Name="UpdateButton" Content="Update"
+                        <Grid x:Name="EditButtonsPanel" Visibility="Collapsed">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Button x:Name="UpdateButton" Grid.Column="0" Content="Update"
                                     Style="{StaticResource PrimaryButton}"
                                     Click="UpdateButton_Click"/>
-                            <Button x:Name="DeleteButton" Content="Delete"
-                                    Style="{StaticResource DangerButton}" Margin="0,8,0,0"
+                            <Button x:Name="DeleteButton" Grid.Column="1" Content="Delete"
+                                    Style="{StaticResource DangerButton}" Margin="8,0,0,0"
                                     Click="DeleteButton_Click"/>
-                            <Button x:Name="CancelButton" Content="Cancel"
-                                    Style="{StaticResource SecondaryButton}" Margin="0,8,0,0"
-                                    Click="CancelButton_Click"/>
-                        </StackPanel>
+                        </Grid>
                     </StackPanel>
                 </StackPanel>
             </Border>
@@ -475,14 +518,9 @@
                 </TextBlock>
             </StackPanel>
 
-            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Bottom">
-                <Button x:Name="SaveButton" Content="Save Changes"
-                        Style="{StaticResource PrimaryButton}" Margin="0,0,8,0"
-                        Click="SaveButton_Click"/>
-                <Button x:Name="CloseButton" Content="Close"
-                        Style="{StaticResource SecondaryButton}"
-                        Click="CloseButton_Click"/>
-            </StackPanel>
+            <Button x:Name="CloseButton" Grid.Column="1" Content="Close"
+                    Style="{StaticResource SecondaryButton}" VerticalAlignment="Bottom"
+                    Click="CloseButton_Click"/>
         </Grid>
     </Grid>
 </Window>
