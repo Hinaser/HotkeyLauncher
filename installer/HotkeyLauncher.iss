@@ -2,7 +2,7 @@
 ; Requires Inno Setup 6.0 or later (https://jrsoftware.org/isinfo.php)
 
 #define MyAppName "HotkeyLauncher"
-#define MyAppVersion "1.0.0"
+#define MyAppVersion "1.0.1"
 #define MyAppPublisher "Hinaser"
 #define MyAppURL "https://github.com/Hinaser/HotkeyLauncher"
 #define MyAppExeName "HotkeyLauncher.exe"
